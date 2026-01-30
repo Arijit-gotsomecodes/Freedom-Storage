@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Storage Explorer | Sepolia Testnet</title>
+    <meta name="description" content="Decentralized file storage on the Sepolia blockchain with IPFS integration.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Ethers.js -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i data-lucide="database" class="logo-icon"></i>
+                <h1>File Storage <span>Explorer</span></h1>
+            </div>
+
+            <div class="wallet-section">
+                <button id="darkModeToggle" title="Toggle Dark Mode">
+                    <i data-lucide="moon" style="width: 20px; height: 20px;"></i>
+                </button>
+                <div id="accountInfo" class="account-info">
+                    <i data-lucide="wallet" class="wallet-icon"></i>
+                    <div>
+                        <span id="accountAddress">0x0000...0000</span>
+                        <div id="accountBalance" class="account-balance">0.0000 ETH</div>
+                    </div>
+                </div>
+                <button id="connectBtn">
+                    <i data-lucide="plug" style="width: 16px; height: 16px;"></i>
+                    Connect Wallet
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-lucide="file-text"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Total Files</div>
+                    <div class="stat-value" id="totalFiles">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-lucide="folder"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">My Files</div>
+                    <div class="stat-value" id="myFiles">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i data-lucide="server"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Network</div>
+                    <div class="stat-value" style="font-size: 1.25rem;">ETH (Sepolia)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <section id="uploadSection" class="card">
+            <h2>
+                <i data-lucide="upload"></i>
+                Upload File
+            </h2>
+
+            <div class="upload-area">
+                <div class="upload-icon">
+                    <i data-lucide="cloud-upload" style="width: 48px; height: 48px;"></i>
+                </div>
+                <h3>Select a file to upload</h3>
+                <p>
+                    Small files (&lt;10KB): Stored directly on blockchain<br>
+                    Large files (&gt;10KB): Stored on IPFS via Pinata
+                </p>
+                <label for="fileInput" class="file-input-label">
+                    <i data-lucide="file-plus" style="width: 18px; height: 18px;"></i>
+                    Choose File
+                </label>
+                <input type="file" id="fileInput" accept="*/*">
+            </div>
+
+            <div id="fileInfo">
+                <h3>
+                    <i data-lucide="info" style="width: 16px; height: 16px; vertical-align: middle;"></i>
+                    File Information
+                </h3>
+                <div class="file-info-grid">
+                    <span class="file-info-label">File Name:</span>
+                    <span class="file-info-value" id="fileName">-</span>
+
+                    <span class="file-info-label">File Size:</span>
+                    <span class="file-info-value" id="fileSize">-</span>
+
+                    <span class="file-info-label">File Type:</span>
+                    <span class="file-info-value" id="fileType">-</span>
+
+                    <span class="file-info-label">Storage Method:</span>
+                    <span class="file-info-value" id="storageMethod" style="font-weight: 700;">-</span>
+                </div>
+
+                <div id="gasEstimate" class="gas-estimate" style="display: none;">
+                    <i data-lucide="zap" style="width: 16px; height: 16px; vertical-align: middle;"></i>
+                    <span id="gasEstimateText">Estimating gas...</span>
+                </div>
+
+                <button id="uploadBtn">
+                    <i data-lucide="upload-cloud" style="width: 18px; height: 18px;"></i>
+                    Upload to Blockchain
+                </button>
+            </div>
+        </section>
+
+        <!-- My Files Section -->
+        <section id="myFilesSection" class="card">
+            <h2>
+                <i data-lucide="folder-open"></i>
+                My Files
+            </h2>
+            <button id="loadFilesBtn">
+                <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+                Refresh Files
+            </button>
+            <div id="filesList"></div>
+        </section>
+
+        <!-- Retrieve Section -->
+        <section class="card">
+            <h2>
+                <i data-lucide="search"></i>
+                Retrieve File by ID
+            </h2>
+            <div class="retrieve-form">
+                <input type="number" id="fileIdInput" placeholder="Enter File ID (e.g., 1)" min="1">
+                <button id="retrieveBtn">
+                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                    Retrieve File
+                </button>
+            </div>
+            <div id="retrieveGasEstimate" class="gas-estimate" style="display: none; margin-top: 1rem;">
+                <i data-lucide="zap" style="width: 16px; height: 16px; vertical-align: middle;"></i>
+                <span id="retrieveGasEstimateText">Estimated gas: ~21,000 gas (~$0.01)</span>
+            </div>
+        </section>
+
+        <!-- Info Section -->
+        <section class="card">
+            <h2>
+                <i data-lucide="info"></i>
+                About This Application
+            </h2>
+            <div class="info-box">
+                <p>
+                    This decentralized application allows you to store files on the Sepolia testnet with
+                    automatic storage optimization. Small files (&lt;10KB) are stored directly on the blockchain,
+                    while larger files are stored on IPFS with only the hash recorded on-chain.
+                </p>
+                <p>
+                    <strong>Getting Started:</strong> Make sure you have Sepolia testnet ETH in your MetaMask wallet.
+                    You can get free Sepolia ETH from
+                    <a href="https://sepoliafaucet.com/" target="_blank">sepoliafaucet.com</a>
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            <strong>File Storage Explorer</strong> |
+            Powered by Ethereum Sepolia Testnet & IPFS |
+            <a href="https://sepolia.etherscan.io/" target="_blank">View on Etherscan</a>
+        </p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">
+            Built with Ethers.js, MetaMask & Pinata IPFS
+        </p>
+    </footer>
+
+    <!-- Image Preview Modal -->
+    <div id="previewModal" class="preview-modal">
+        <div class="preview-content">
+            <div class="preview-header">
+                <h3 id="previewFileName">Image Preview</h3>
+                <button class="preview-close" onclick="closePreview()">
+                    <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+                </button>
+            </div>
+            <div class="preview-image-container">
+                <img id="previewImage" class="preview-image" src="" alt="Preview">
+            </div>
+            <div class="preview-info" id="previewInfo"></div>
+            <div class="preview-actions">
+                <button id="previewDownloadBtn" class="download-btn"
+                    onclick="downloadFile(window.currentPreviewFileId)">
+                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                    Download File
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="js/ipfs-handler.js"></script>
+    <script src="js/web3-handler.js"></script>
+    <script src="js/contract-interaction.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
