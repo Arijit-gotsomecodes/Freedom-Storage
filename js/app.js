@@ -233,9 +233,9 @@ async function loadMyFiles() {
 
         filesList.innerHTML = '<div class="loading">Loading files...</div>';
 
-        // Load metadata for each file
+        // Load full file data to get content for thumbnails
         const filesData = await Promise.all(
-            fileIds.map(id => contractInteraction.getFileMetadata(id))
+            fileIds.map(id => contractInteraction.getFile(id))
         );
 
         // Sort by timestamp (newest first)
@@ -244,11 +244,35 @@ async function loadMyFiles() {
         // Render files
         filesList.innerHTML = filesData.map(file => {
             const isImage = file.fileType.startsWith('image/');
+            let thumbnailHtml = '';
+
+            if (isImage) {
+                let imageUrl;
+                if (ipfsHandler.isIPFSHash(file.fileContent)) {
+                    imageUrl = ipfsHandler.getIPFSUrl(file.fileContent);
+                } else {
+                    imageUrl = `data:${file.fileType};base64,${file.fileContent}`;
+                }
+
+                thumbnailHtml = `
+                    <div class="file-thumbnail">
+                        <img src="${imageUrl}" alt="${escapeHtml(file.fileName)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="file-icon-fallback" style="display: none;">
+                            <i data-lucide="${getLucideIcon(file.fileType)}"></i>
+                        </div>
+                    </div>
+                `;
+            } else {
+                thumbnailHtml = `
+                    <div class="file-icon">
+                        <i data-lucide="${getLucideIcon(file.fileType)}"></i>
+                    </div>
+                `;
+            }
+
             return `
             <div class="file-card" data-file-id="${file.id}">
-                <div class="file-icon">
-                    <i data-lucide="${getLucideIcon(file.fileType)}"></i>
-                </div>
+                ${thumbnailHtml}
                 <div class="file-details">
                     <h3>${escapeHtml(file.fileName)}</h3>
                     <p class="file-meta">
