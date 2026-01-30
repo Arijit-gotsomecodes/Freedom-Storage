@@ -104,11 +104,6 @@ async function handleFileSelect(event) {
     } else if (file.size <= CONFIG.STORAGE.IPFS_STORAGE_LIMIT) {
         storageMethod = 'IPFS (Pinata)';
         storageMethodElement.style.color = '#9b59b6';
-
-        // Check if Pinata is configured
-        if (!CONFIG.PINATA.JWT || CONFIG.PINATA.JWT === '') {
-            showNotification('⚠️ IPFS storage requires Pinata API credentials. Please configure in config.js', 'warning');
-        }
     } else {
         storageMethod = 'File too large';
         storageMethodElement.style.color = '#e74c3c';
