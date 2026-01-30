@@ -2,7 +2,6 @@
 // This keeps your JWT token secure on the server side
 
 const fetch = require('node-fetch');
-const FormData = require('form-data');
 
 exports.handler = async (event, context) => {
     // Only allow POST requests
@@ -30,27 +29,30 @@ exports.handler = async (event, context) => {
         if (!contentType.includes('multipart/form-data')) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ error: 'Content-Type must be multipart/form-data' })
+                body: JSON.stringify({ error: 'Invalid request format. Content-Type must be multipart/form-data' })
             };
         }
+
+        // Netlify encodes binary data as base64 in the body
+        // We need to decode it before forwarding to Pinata
+        const bodyBuffer = event.isBase64Encoded
+            ? Buffer.from(event.body, 'base64')
+            : Buffer.from(event.body);
 
         // Forward the file to Pinata
         const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${PINATA_JWT}`
-            },
-            body: event.body,
-            // Pass through the content-type with boundary
-            headers: {
                 'Authorization': `Bearer ${PINATA_JWT}`,
                 'Content-Type': contentType
-            }
+            },
+            body: bodyBuffer
         });
 
         const data = await response.json();
 
         if (!response.ok) {
+            console.error('Pinata API error:', data);
             return {
                 statusCode: response.status,
                 body: JSON.stringify(data)
