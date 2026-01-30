@@ -92,7 +92,6 @@ async function checkSharedFile() {
         }
     }
 }
-}
 
 async function checkWalletConnection() {
     if (window.ethereum) {
