@@ -143,12 +143,26 @@ class IPFSHandler {
         try {
             showNotification('Downloading from IPFS...', 'info');
 
-            const url = this.getIPFSUrl(ipfsHash);
+            const cleanHash = ipfsHash.replace('ipfs://', '');
+
+            // Determine if we're in production or local
+            const isProduction = window.location.hostname !== 'localhost' &&
+                window.location.hostname !== '127.0.0.1';
+
+            let downloadUrl;
+
+            if (isProduction) {
+                // Use Netlify Function to proxy download with proper Content-Disposition headers
+                downloadUrl = `/.netlify/functions/ipfs-download?hash=${encodeURIComponent(cleanHash)}&fileName=${encodeURIComponent(fileName)}`;
+            } else {
+                // In development, use direct IPFS URL
+                downloadUrl = this.getIPFSUrl(cleanHash);
+            }
 
             // Use a simple link approach to avoid CORS issues
             // The browser will handle the download natively
             const a = document.createElement('a');
-            a.href = url;
+            a.href = downloadUrl;
             a.download = fileName || 'download';
             a.target = '_blank';  // Open in new tab if download fails
             document.body.appendChild(a);
