@@ -20,9 +20,10 @@ const CONFIG = {
 
     // Network configuration
     NETWORK: {
-        CHAIN_ID: 11155111, // Sepolia
-        NAME: "Sepolia",
-        RPC_URL: "https://sepolia.infura.io/v3/"
+        chainId: "0xaa36a7", // 11155111 in hex (Sepolia)
+        chainName: "Sepolia Testnet",
+        rpcUrls: ["https://sepolia.infura.io/v3/"],
+        blockExplorerUrls: ["https://sepolia.etherscan.io/"]
     },
 
     // Smart contract ABI
