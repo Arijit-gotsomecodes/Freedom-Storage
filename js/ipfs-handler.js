@@ -144,25 +144,18 @@ class IPFSHandler {
             showNotification('Downloading from IPFS...', 'info');
 
             const url = this.getIPFSUrl(ipfsHash);
-            const response = await fetch(url);
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch from IPFS');
-            }
-
-            const blob = await response.blob();
-
-            // Create download link
-            const downloadUrl = URL.createObjectURL(blob);
+            // Use a simple link approach to avoid CORS issues
+            // The browser will handle the download natively
             const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = fileName;
+            a.href = url;
+            a.download = fileName || 'download';
+            a.target = '_blank';  // Open in new tab if download fails
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(downloadUrl);
 
-            showNotification('File downloaded successfully!', 'success');
+            showNotification('Download started!', 'success');
 
         } catch (error) {
             console.error('IPFS download error:', error);
