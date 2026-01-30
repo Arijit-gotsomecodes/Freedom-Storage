@@ -101,21 +101,22 @@ class ContractInteraction {
         try {
             const contract = this.web3Handler.getContract();
 
-            // Call the getFile function which returns all file data
-            const result = await contract.getFile(fileId);
+            // Use the public 'files' mapping instead of getFile() function
+            // getFile() emits an event and costs gas, but files mapping is free (view)
+            const file = await contract.files(fileId);
 
-            // getFile returns: id, fileName, fileContent, uploader, timestamp, fileType, fileSize
             // Helper to safely convert BigNumber
             const safeNum = (val) => val && val.toNumber ? val.toNumber() : (val ? parseInt(val.toString()) : 0);
 
+            // files mapping returns the File struct: id, fileName, fileContent, uploader, timestamp, fileType, fileSize
             return {
-                id: safeNum(result[0]),      // id
-                fileName: result[1] || '',    // fileName
-                fileContent: result[2] || '', // fileContent
-                uploader: result[3] || '',    // uploader
-                timestamp: safeNum(result[4]), // timestamp
-                fileType: result[5] || '',    // fileType
-                fileSize: safeNum(result[6])  // fileSize
+                id: safeNum(file.id),
+                fileName: file.fileName || '',
+                fileContent: file.fileContent || '',
+                uploader: file.uploader || '',
+                timestamp: safeNum(file.timestamp),
+                fileType: file.fileType || '',
+                fileSize: safeNum(file.fileSize)
             };
         } catch (error) {
             console.error('Error retrieving file:', error);

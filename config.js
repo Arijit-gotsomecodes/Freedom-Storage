@@ -62,6 +62,21 @@ const CONFIG = {
             "type": "function"
         },
         {
+            "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+            "name": "files",
+            "outputs": [
+                { "internalType": "uint256", "name": "id", "type": "uint256" },
+                { "internalType": "string", "name": "fileName", "type": "string" },
+                { "internalType": "string", "name": "fileContent", "type": "string" },
+                { "internalType": "address", "name": "uploader", "type": "address" },
+                { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+                { "internalType": "string", "name": "fileType", "type": "string" },
+                { "internalType": "uint256", "name": "fileSize", "type": "uint256" }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
             "inputs": [{ "internalType": "uint256", "name": "_fileId", "type": "uint256" }],
             "name": "getFile",
             "outputs": [
