@@ -3,7 +3,7 @@
 
 const CONFIG = {
     // Your deployed smart contract address on Sepolia testnet
-    CONTRACT_ADDRESS: "0x7af5fdFd5BC1C9996072e1e0Fed37aeF5C60BBe7",
+    CONTRACT_ADDRESS: "0xADbBaaa80B958ec351e4F46f1A8cCE11449B7Cd9",
 
     // Pinata configuration - NOT NEEDED for Netlify deployment
     // The JWT is kept secure in Netlify environment variables
