@@ -23,7 +23,7 @@ const CONFIG = {
         chainId: "0xaa36a7", // 11155111 in hex (Sepolia)
         chainName: "Sepolia Testnet",
         rpcUrls: ["https://sepolia.infura.io/v3/"],
-        publicRpcUrl: 'https://rpc2.sepolia.org', // Public RPC for read-only access
+        publicRpcUrl: 'https://ethereum-sepolia.publicnode.com', // More reliable public RPC
         blockExplorerUrls: ["https://sepolia.etherscan.io/"]
     },
 
