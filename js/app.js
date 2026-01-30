@@ -3,13 +3,20 @@
 let selectedFile = null;
 
 // Initialize app
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize app
+function onReady() {
     initializeApp();
     // Initialize Lucide icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onReady);
+} else {
+    onReady();
+}
 
 function initializeApp() {
     // Set up event listeners
