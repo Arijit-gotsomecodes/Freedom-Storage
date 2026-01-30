@@ -103,3 +103,6 @@ const CONFIG = {
         }
     ]
 };
+
+// Make CONFIG globally available
+window.CONFIG = CONFIG;
