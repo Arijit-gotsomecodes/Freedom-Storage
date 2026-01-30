@@ -553,8 +553,19 @@ async function previewFile(fileId) {
 
 function closePreview() {
     const modal = document.getElementById('previewModal');
+    const img = document.getElementById('previewImage');
+    const imgContainer = document.querySelector('.preview-image-container');
+
+    // Remove event handlers BEFORE clearing src to prevent error notifications
+    img.onerror = null;
+    img.onload = null;
+
+    // Clear loading state
+    imgContainer.classList.remove('loading');
+    img.classList.remove('loaded');
+
     modal.classList.remove('show');
-    document.getElementById('previewImage').src = '';
+    img.src = '';
 }
 
 // Make functions globally available
