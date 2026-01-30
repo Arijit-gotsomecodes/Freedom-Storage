@@ -498,8 +498,17 @@ header {
     gap: 0.5rem;
 }
 
-.download-btn:hover {
+.download-btn:hover:not(:disabled) {
     background: var(--primary-dark);
+}
+
+.download-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.download-btn .spinner {
+    animation: spin 1s linear infinite;
 }
 
 .no-files {

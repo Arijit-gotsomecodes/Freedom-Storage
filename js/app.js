@@ -310,8 +310,18 @@ async function handleRetrieve() {
 }
 
 async function downloadFile(fileId) {
+    // Find the download button for this file
+    const downloadBtn = event?.target?.closest('.download-btn');
+
     try {
-        showNotification('Retrieving file from blockchain...', 'info');
+        // Show loading on button
+        if (downloadBtn) {
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<i data-lucide="loader-2" class="spinner"></i> Preparing...';
+            lucide.createIcons();
+        }
+
+        showNotification('Preparing download...', 'info');
 
         const file = await contractInteraction.getFile(fileId);
         console.log('Download file data:', file);
@@ -319,8 +329,20 @@ async function downloadFile(fileId) {
         // Check if it's an IPFS hash
         if (ipfsHandler.isIPFSHash(file.fileContent)) {
             console.log('Downloading from IPFS. Hash:', file.fileContent);
+            showNotification('Fetching from IPFS, please wait...', 'info');
+
             // Download from IPFS
             await ipfsHandler.downloadFile(file.fileContent, file.fileName, file.fileType);
+
+            // Give user feedback and wait a bit before re-enabling button
+            showNotification('Download started! Check your downloads folder.', 'success');
+            setTimeout(() => {
+                if (downloadBtn) {
+                    downloadBtn.disabled = false;
+                    downloadBtn.innerHTML = '<i data-lucide="download"></i> Download';
+                    lucide.createIcons();
+                }
+            }, 2000);
         } else {
             console.log('Downloading from base64');
             // Download from base64
@@ -337,10 +359,24 @@ async function downloadFile(fileId) {
             URL.revokeObjectURL(url);
 
             showNotification('File downloaded successfully!', 'success');
+
+            // Re-enable button immediately for base64
+            if (downloadBtn) {
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = '<i data-lucide="download"></i> Download';
+                lucide.createIcons();
+            }
         }
     } catch (error) {
         console.error('Download error:', error);
         showNotification('Download failed: ' + error.message, 'error');
+
+        // Re-enable button on error
+        if (downloadBtn) {
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = '<i data-lucide="download"></i> Download';
+            lucide.createIcons();
+        }
     }
 }
 
