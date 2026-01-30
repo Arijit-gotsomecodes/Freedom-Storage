@@ -26,81 +26,262 @@ const CONFIG = {
         blockExplorerUrls: ["https://sepolia.etherscan.io/"]
     },
 
-    // Smart contract ABI
+    // Smart contract ABI (from Remix)
     CONTRACT_ABI: [
         {
             "anonymous": false,
             "inputs": [
-                { "indexed": true, "internalType": "uint256", "name": "fileId", "type": "uint256" },
-                { "indexed": true, "internalType": "address", "name": "uploader", "type": "address" },
-                { "indexed": false, "internalType": "string", "name": "fileName", "type": "string" },
-                { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
-            ],
-            "name": "FileUploaded",
-            "type": "event"
-        },
-        {
-            "anonymous": false,
-            "inputs": [
-                { "indexed": true, "internalType": "uint256", "name": "fileId", "type": "uint256" },
-                { "indexed": true, "internalType": "address", "name": "retriever", "type": "address" },
-                { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+                {
+                    "indexed": true,
+                    "internalType": "uint256",
+                    "name": "fileId",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "retriever",
+                    "type": "address"
+                }
             ],
             "name": "FileRetrieved",
             "type": "event"
         },
         {
+            "anonymous": false,
             "inputs": [
-                { "internalType": "string", "name": "_fileName", "type": "string" },
-                { "internalType": "string", "name": "_fileContent", "type": "string" },
-                { "internalType": "string", "name": "_fileType", "type": "string" },
-                { "internalType": "uint256", "name": "_fileSize", "type": "uint256" }
+                {
+                    "indexed": true,
+                    "internalType": "uint256",
+                    "name": "fileId",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "string",
+                    "name": "fileName",
+                    "type": "string"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "uploader",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "timestamp",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "string",
+                    "name": "fileType",
+                    "type": "string"
+                }
             ],
-            "name": "uploadFile",
-            "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+            "name": "FileUploaded",
+            "type": "event"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_fileId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getFile",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "id",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "fileName",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "fileContent",
+                    "type": "string"
+                },
+                {
+                    "internalType": "address",
+                    "name": "uploader",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "timestamp",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "fileType",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "fileSize",
+                    "type": "uint256"
+                }
+            ],
             "stateMutability": "nonpayable",
             "type": "function"
         },
         {
-            "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-            "name": "files",
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "_fileName",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "_fileContent",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "_fileType",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_fileSize",
+                    "type": "uint256"
+                }
+            ],
+            "name": "uploadFile",
             "outputs": [
-                { "internalType": "uint256", "name": "id", "type": "uint256" },
-                { "internalType": "string", "name": "fileName", "type": "string" },
-                { "internalType": "string", "name": "fileContent", "type": "string" },
-                { "internalType": "address", "name": "uploader", "type": "address" },
-                { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
-                { "internalType": "string", "name": "fileType", "type": "string" },
-                { "internalType": "uint256", "name": "fileSize", "type": "uint256" }
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "fileCount",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
             ],
             "stateMutability": "view",
             "type": "function"
         },
         {
-            "inputs": [{ "internalType": "uint256", "name": "_fileId", "type": "uint256" }],
-            "name": "getFile",
-            "outputs": [
-                { "internalType": "uint256", "name": "id", "type": "uint256" },
-                { "internalType": "string", "name": "fileName", "type": "string" },
-                { "internalType": "string", "name": "fileContent", "type": "string" },
-                { "internalType": "address", "name": "uploader", "type": "address" },
-                { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
-                { "internalType": "string", "name": "fileType", "type": "string" },
-                { "internalType": "uint256", "name": "fileSize", "type": "uint256" }
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
             ],
-            "stateMutability": "nonpayable",
+            "name": "files",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "id",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "fileName",
+                    "type": "string"
+                },
+                {
+                    "internalType": "string",
+                    "name": "fileContent",
+                    "type": "string"
+                },
+                {
+                    "internalType": "address",
+                    "name": "uploader",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "timestamp",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "fileType",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "fileSize",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
             "type": "function"
         },
         {
-            "inputs": [{ "internalType": "uint256", "name": "_fileId", "type": "uint256" }],
+            "inputs": [],
+            "name": "getFileCount",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_fileId",
+                    "type": "uint256"
+                }
+            ],
             "name": "getFileMetadata",
             "outputs": [
-                { "internalType": "uint256", "name": "id", "type": "uint256" },
-                { "internalType": "string", "name": "fileName", "type": "string" },
-                { "internalType": "address", "name": "uploader", "type": "address" },
-                { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
-                { "internalType": "string", "name": "fileType", "type": "string" },
-                { "internalType": "uint256", "name": "fileSize", "type": "uint256" }
+                {
+                    "internalType": "uint256",
+                    "name": "id",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "fileName",
+                    "type": "string"
+                },
+                {
+                    "internalType": "address",
+                    "name": "uploader",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "timestamp",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "fileType",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "fileSize",
+                    "type": "uint256"
+                }
             ],
             "stateMutability": "view",
             "type": "function"
@@ -108,18 +289,61 @@ const CONFIG = {
         {
             "inputs": [],
             "name": "getMyFiles",
-            "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }],
+            "outputs": [
+                {
+                    "internalType": "uint256[]",
+                    "name": "",
+                    "type": "uint256[]"
+                }
+            ],
             "stateMutability": "view",
             "type": "function"
         },
         {
-            "inputs": [],
-            "name": "getFileCount",
-            "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_user",
+                    "type": "address"
+                }
+            ],
+            "name": "getUserFiles",
+            "outputs": [
+                {
+                    "internalType": "uint256[]",
+                    "name": "",
+                    "type": "uint256[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "userFiles",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
             "stateMutability": "view",
             "type": "function"
         }
     ]
+};
 };
 
 // Make CONFIG globally available
