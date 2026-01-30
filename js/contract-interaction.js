@@ -105,14 +105,17 @@ class ContractInteraction {
             const result = await contract.getFile(fileId);
 
             // getFile returns: fileName, fileContent, fileType, fileSize, uploader, timestamp
+            // Helper to safely convert BigNumber
+            const safeNum = (val) => val && val.toNumber ? val.toNumber() : (val ? parseInt(val.toString()) : 0);
+
             return {
                 id: fileId,
-                fileName: result[0],        // fileName
-                fileContent: result[1],     // fileContent
-                fileType: result[2],        // fileType
-                fileSize: result[3].toNumber(), // fileSize
-                uploader: result[4],        // uploader
-                timestamp: result[5].toNumber() // timestamp
+                fileName: result[0] || '',        // fileName
+                fileContent: result[1] || '',     // fileContent
+                fileType: result[2] || '',        // fileType
+                fileSize: safeNum(result[3]), // fileSize
+                uploader: result[4] || '',        // uploader
+                timestamp: safeNum(result[5]) // timestamp
             };
         } catch (error) {
             console.error('Error retrieving file:', error);
@@ -129,13 +132,16 @@ class ContractInteraction {
             const result = await contract.getFileMetadata(fileId);
 
             // getFileMetadata returns: fileName, fileType, fileSize, uploader, timestamp
+            // Helper to safely convert BigNumber
+            const safeNum = (val) => val && val.toNumber ? val.toNumber() : (val ? parseInt(val.toString()) : 0);
+
             return {
                 id: fileId,
-                fileName: result[0],        // fileName
-                fileType: result[1],        // fileType  
-                fileSize: result[2].toNumber(), // fileSize
-                uploader: result[3],        // uploader
-                timestamp: result[4].toNumber() // timestamp
+                fileName: result[0] || '',        // fileName
+                fileType: result[1] || '',        // fileType  
+                fileSize: safeNum(result[2]), // fileSize
+                uploader: result[3] || '',        // uploader
+                timestamp: safeNum(result[4]) // timestamp
             };
         } catch (error) {
             console.error('Error retrieving file metadata:', error);
@@ -152,7 +158,8 @@ class ContractInteraction {
             const contract = this.web3Handler.getContract();
             const fileIds = await contract.getMyFiles();
 
-            return fileIds.map(id => id.toNumber());
+            // Safely convert BigNumbers to regular numbers
+            return fileIds.map(id => id && id.toNumber ? id.toNumber() : parseInt(id.toString()));
         } catch (error) {
             console.error('Error getting user files:', error);
             showNotification(`Failed to load your files: ${error.message}`, 'error');
