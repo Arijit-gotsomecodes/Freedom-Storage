@@ -101,18 +101,18 @@ class ContractInteraction {
         try {
             const contract = this.web3Handler.getContract();
 
-            // getFile is a view function, don't need to wait for transaction
-            // Just call files() directly to get the file data
-            const file = await contract.files(fileId);
+            // Call the getFile function which returns all file data
+            const result = await contract.getFile(fileId);
 
+            // getFile returns: fileName, fileContent, fileType, fileSize, uploader, timestamp
             return {
-                id: file.id.toNumber(),
-                fileName: file.fileName,
-                fileContent: file.fileContent,
-                uploader: file.uploader,
-                timestamp: file.timestamp.toNumber(),
-                fileType: file.fileType,
-                fileSize: file.fileSize.toNumber()
+                id: fileId,
+                fileName: result[0],        // fileName
+                fileContent: result[1],     // fileContent
+                fileType: result[2],        // fileType
+                fileSize: result[3].toNumber(), // fileSize
+                uploader: result[4],        // uploader
+                timestamp: result[5].toNumber() // timestamp
             };
         } catch (error) {
             console.error('Error retrieving file:', error);
@@ -124,15 +124,18 @@ class ContractInteraction {
     async getFileMetadata(fileId) {
         try {
             const contract = this.web3Handler.getContract();
-            const file = await contract.files(fileId);
 
+            // Call the getFileMetadata function which returns metadata only
+            const result = await contract.getFileMetadata(fileId);
+
+            // getFileMetadata returns: fileName, fileType, fileSize, uploader, timestamp
             return {
-                id: file.id.toNumber(),
-                fileName: file.fileName,
-                uploader: file.uploader,
-                timestamp: file.timestamp.toNumber(),
-                fileType: file.fileType,
-                fileSize: file.fileSize.toNumber()
+                id: fileId,
+                fileName: result[0],        // fileName
+                fileType: result[1],        // fileType  
+                fileSize: result[2].toNumber(), // fileSize
+                uploader: result[3],        // uploader
+                timestamp: result[4].toNumber() // timestamp
             };
         } catch (error) {
             console.error('Error retrieving file metadata:', error);

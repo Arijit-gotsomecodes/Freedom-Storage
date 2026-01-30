@@ -7,7 +7,14 @@ class IPFSHandler {
     }
 
     isConfigured() {
-        return this.pinataJWT && this.pinataJWT.length > 0;
+        // In production (Netlify), JWT is handled by Functions, so it's okay if it's empty
+        // In local development, we need the JWT
+        const isProduction = window.location.hostname !== 'localhost' &&
+            window.location.hostname !== '127.0.0.1';
+
+        // If production, always return true (Netlify Functions handle it)
+        // If local, check if JWT exists
+        return isProduction || (this.pinataJWT && this.pinataJWT.length > 0);
     }
 
     /**
@@ -16,9 +23,6 @@ class IPFSHandler {
      * @returns {Promise<string>} - The IPFS hash (CID)
      */
     async uploadFile(file) {
-        if (!this.isConfigured()) {
-            throw new Error('Pinata API credentials not configured. Please add your JWT to config.js');
-        }
 
         try {
             const formData = new FormData();
