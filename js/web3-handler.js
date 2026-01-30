@@ -3,11 +3,24 @@
 class Web3Handler {
     constructor() {
         this.provider = null;
+        this.readOnlyProvider = null;
         this.signer = null;
         this.account = null;
         this.isConnected = false;
 
+        this.initReadOnlyProvider();
         this.setupEventListeners();
+    }
+
+    async initReadOnlyProvider() {
+        try {
+            if (CONFIG.NETWORK.publicRpcUrl) {
+                this.readOnlyProvider = new ethers.providers.JsonRpcProvider(CONFIG.NETWORK.publicRpcUrl);
+                console.log('Read-only provider initialized');
+            }
+        } catch (error) {
+            console.error('Failed to initialize read-only provider:', error);
+        }
     }
 
     setupEventListeners() {
@@ -17,7 +30,7 @@ class Web3Handler {
         window.ethereum.on('accountsChanged', async (accounts) => {
             if (accounts.length === 0) {
                 this.disconnectWallet();
-                showNotification('Please connect to MetaMask', 'warning');
+                showNotification('Disconnected from MetaMask', 'info');
             } else if (accounts[0] !== this.account) {
                 this.account = accounts[0];
                 this.updateConnectionUI();
@@ -36,7 +49,7 @@ class Web3Handler {
 
     async checkMetaMask() {
         if (typeof window.ethereum === 'undefined') {
-            throw new Error('MetaMask is not installed. Please install MetaMask to use this dApp.');
+            throw new Error('MetaMask is not installed. Please install MetaMask to upload files.');
         }
         return true;
     }
@@ -70,29 +83,32 @@ class Web3Handler {
     }
 
     async checkNetwork() {
-        const network = await this.provider.getNetwork();
-        const sepoliaChainId = parseInt(CONFIG.NETWORK.chainId, 16);
+        // If connected with wallet, check network
+        if (this.provider) {
+            const network = await this.provider.getNetwork();
+            const sepoliaChainId = parseInt(CONFIG.NETWORK.chainId, 16);
 
-        if (network.chainId !== sepoliaChainId) {
-            try {
-                await window.ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: CONFIG.NETWORK.chainId }],
-                });
-            } catch (switchError) {
-                // Chain not added, try to add it
-                if (switchError.code === 4902) {
+            if (network.chainId !== sepoliaChainId) {
+                try {
                     await window.ethereum.request({
-                        method: 'wallet_addEthereumChain',
-                        params: [{
-                            chainId: CONFIG.NETWORK.chainId,
-                            chainName: CONFIG.NETWORK.chainName,
-                            rpcUrls: CONFIG.NETWORK.rpcUrls,
-                            blockExplorerUrls: CONFIG.NETWORK.blockExplorerUrls
-                        }],
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: CONFIG.NETWORK.chainId }],
                     });
-                } else {
-                    throw switchError;
+                } catch (switchError) {
+                    // Chain not added, try to add it
+                    if (switchError.code === 4902) {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: CONFIG.NETWORK.chainId,
+                                chainName: CONFIG.NETWORK.chainName,
+                                rpcUrls: CONFIG.NETWORK.rpcUrls,
+                                blockExplorerUrls: CONFIG.NETWORK.blockExplorerUrls
+                            }],
+                        });
+                    } else {
+                        throw switchError;
+                    }
                 }
             }
         }
@@ -110,7 +126,7 @@ class Web3Handler {
         if (accounts.length === 0) {
             // User disconnected all accounts
             this.disconnectWallet();
-            showNotification('Please connect to MetaMask', 'warning');
+            showNotification('Disconnected from MetaMask', 'info');
         } else if (accounts[0] !== this.account) {
             // User switched accounts
             this.account = accounts[0];
@@ -146,6 +162,7 @@ class Web3Handler {
             connectBtn.classList.remove('connected');
             accountInfo.style.display = 'none';
             uploadSection.style.display = 'none';
+            // Don't hide my files section immediately, might want to show public info
             myFilesSection.style.display = 'none';
         }
 
@@ -157,11 +174,13 @@ class Web3Handler {
 
     async updateBalance() {
         try {
-            const balance = await this.provider.getBalance(this.account);
-            const balanceInEth = ethers.utils.formatEther(balance);
-            const balanceDisplay = document.getElementById('accountBalance');
-            if (balanceDisplay) {
-                balanceDisplay.textContent = `${parseFloat(balanceInEth).toFixed(4)} ETH`;
+            if (this.provider && this.account) {
+                const balance = await this.provider.getBalance(this.account);
+                const balanceInEth = ethers.utils.formatEther(balance);
+                const balanceDisplay = document.getElementById('accountBalance');
+                if (balanceDisplay) {
+                    balanceDisplay.textContent = `${parseFloat(balanceInEth).toFixed(4)} ETH`;
+                }
             }
         } catch (error) {
             console.error('Error fetching balance:', error);
@@ -173,10 +192,17 @@ class Web3Handler {
     }
 
     getContract() {
-        if (!this.signer) {
-            throw new Error('Wallet not connected');
+        // If connected, return contract with signer (Read/Write)
+        if (this.signer) {
+            return new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONFIG.CONTRACT_ABI, this.signer);
         }
-        return new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONFIG.CONTRACT_ABI, this.signer);
+
+        // If not connected but have read-only provider (Read-Only)
+        if (this.readOnlyProvider) {
+            return new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONFIG.CONTRACT_ABI, this.readOnlyProvider);
+        }
+
+        throw new Error('No provider available. Please connect wallet.');
     }
 
     async getBalance() {

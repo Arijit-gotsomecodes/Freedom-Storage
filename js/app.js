@@ -59,36 +59,18 @@ async function checkSharedFile() {
             const fileId = atob(sharedIdBase64);
             console.log('Shared file ID detected:', fileId);
 
-            // Wait for basic initialization
-            // If wallet not connected, we can still try to read if provider allows
-            // But usually requires connection. For now, prompt connection if needed.
+            showNotification('Loading shared file...', 'info');
 
-            if (window.ethereum) {
-                // If we can connect silently, do it
-                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                if (accounts.length > 0) {
-                    if (!web3Handler.isConnected) {
-                        await web3Handler.connectWallet();
-                    }
+            // Try to preview directly (will use read-only provider if no wallet)
+            await previewFile(fileId);
 
-                    showNotification('Loading shared file...', 'info');
-                    await previewFile(fileId);
+            // Clean URL
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.pushState({ path: newUrl }, '', newUrl);
 
-                    // Clean URL
-                    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-                    window.history.pushState({ path: newUrl }, '', newUrl);
-                } else {
-                    showNotification('Please connect your wallet to view the shared file', 'info');
-                    // We will handle this after connection if we storing the intent?
-                    // For now simple: user connects, then re-clicks link or we rely on them staying on page?
-                    // Actually, if they connect manually, we don't auto-open unless we stored the ID.
-                }
-            } else {
-                showNotification('Web3 wallet required to view files', 'warning');
-            }
         } catch (error) {
             console.error('Error handling shared file:', error);
-            showNotification('Invalid share link', 'error');
+            showNotification('Invalid share link or wallet required', 'error');
         }
     }
 }

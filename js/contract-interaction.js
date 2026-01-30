@@ -8,7 +8,7 @@ class ContractInteraction {
     async uploadFile(fileName, fileContent, fileType, fileSize) {
         try {
             if (!this.web3Handler.isConnected) {
-                throw new Error('Please connect your wallet first');
+                throw new Error('Please connect your wallet to upload files');
             }
 
             const contract = this.web3Handler.getContract();
