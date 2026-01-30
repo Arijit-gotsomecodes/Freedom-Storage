@@ -231,7 +231,19 @@
     <div id="notification" class="notification"></div>
 
     <!-- Scripts -->
-    <script src="config.js"></script>
+    <!-- Try to load local config first (for dev), fallback to production config -->
+    <script>
+        // Try loading local config for development
+        const localConfigScript = document.createElement('script');
+        localConfigScript.src = 'config.local.js';
+        localConfigScript.onerror = function () {
+            // If local config doesn't exist, load production config
+            const prodConfigScript = document.createElement('script');
+            prodConfigScript.src = 'config.js';
+            document.head.appendChild(prodConfigScript);
+        };
+        document.head.appendChild(localConfigScript);
+    </script>
     <script src="js/ipfs-handler.js"></script>
     <script src="js/web3-handler.js"></script>
     <script src="js/contract-interaction.js"></script>

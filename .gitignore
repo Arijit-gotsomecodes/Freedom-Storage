@@ -1,5 +1,5 @@
-# Ignore config file with sensitive data
-config.js
+# Ignore local config file with your personal JWT
+config.local.js
 
 # Ignore node_modules
 node_modules/
