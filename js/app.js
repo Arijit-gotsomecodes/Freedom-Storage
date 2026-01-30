@@ -314,12 +314,15 @@ async function downloadFile(fileId) {
         showNotification('Retrieving file from blockchain...', 'info');
 
         const file = await contractInteraction.getFile(fileId);
+        console.log('Download file data:', file);
 
         // Check if it's an IPFS hash
         if (ipfsHandler.isIPFSHash(file.fileContent)) {
+            console.log('Downloading from IPFS. Hash:', file.fileContent);
             // Download from IPFS
             await ipfsHandler.downloadFile(file.fileContent, file.fileName, file.fileType);
         } else {
+            console.log('Downloading from base64');
             // Download from base64
             const blob = base64ToBlob(file.fileContent, file.fileType);
 
@@ -337,6 +340,7 @@ async function downloadFile(fileId) {
         }
     } catch (error) {
         console.error('Download error:', error);
+        showNotification('Download failed: ' + error.message, 'error');
     }
 }
 
@@ -470,6 +474,8 @@ async function previewFile(fileId) {
 
         const file = await contractInteraction.getFile(fileId);
 
+        console.log('Preview file data:', file);
+
         if (!file.fileType.startsWith('image/')) {
             showNotification('Preview only available for images', 'warning');
             return;
@@ -486,9 +492,24 @@ async function previewFile(fileId) {
         if (ipfsHandler.isIPFSHash(file.fileContent)) {
             // Load from IPFS
             const url = ipfsHandler.getIPFSUrl(file.fileContent);
+            console.log('IPFS Preview URL:', url);
+            console.log('IPFS Hash:', file.fileContent);
+
+            // Add error handler for image loading
+            img.onerror = () => {
+                console.error('Failed to load image from:', url);
+                showNotification('Failed to load image from IPFS. URL: ' + url, 'error');
+            };
+
+            img.onload = () => {
+                console.log('Image loaded successfully from IPFS');
+                showNotification('Preview loaded!', 'success');
+            };
+
             img.src = url;
         } else {
             // Load from base64
+            console.log('Loading base64 image');
             img.src = `data:${file.fileType};base64,${file.fileContent}`;
         }
 
