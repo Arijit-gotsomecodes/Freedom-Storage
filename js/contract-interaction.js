@@ -104,18 +104,18 @@ class ContractInteraction {
             // Call the getFile function which returns all file data
             const result = await contract.getFile(fileId);
 
-            // getFile returns: fileName, fileContent, fileType, fileSize, uploader, timestamp
+            // getFile returns: id, fileName, fileContent, uploader, timestamp, fileType, fileSize
             // Helper to safely convert BigNumber
             const safeNum = (val) => val && val.toNumber ? val.toNumber() : (val ? parseInt(val.toString()) : 0);
 
             return {
-                id: fileId,
-                fileName: result[0] || '',        // fileName
-                fileContent: result[1] || '',     // fileContent
-                fileType: result[2] || '',        // fileType
-                fileSize: safeNum(result[3]), // fileSize
-                uploader: result[4] || '',        // uploader
-                timestamp: safeNum(result[5]) // timestamp
+                id: safeNum(result[0]),      // id
+                fileName: result[1] || '',    // fileName
+                fileContent: result[2] || '', // fileContent
+                uploader: result[3] || '',    // uploader
+                timestamp: safeNum(result[4]), // timestamp
+                fileType: result[5] || '',    // fileType
+                fileSize: safeNum(result[6])  // fileSize
             };
         } catch (error) {
             console.error('Error retrieving file:', error);
@@ -131,17 +131,17 @@ class ContractInteraction {
             // Call the getFileMetadata function which returns metadata only
             const result = await contract.getFileMetadata(fileId);
 
-            // getFileMetadata returns: fileName, fileType, fileSize, uploader, timestamp
+            // getFileMetadata returns: id, fileName, uploader, timestamp, fileType, fileSize
             // Helper to safely convert BigNumber
             const safeNum = (val) => val && val.toNumber ? val.toNumber() : (val ? parseInt(val.toString()) : 0);
 
             return {
-                id: fileId,
-                fileName: result[0] || '',        // fileName
-                fileType: result[1] || '',        // fileType  
-                fileSize: safeNum(result[2]), // fileSize
-                uploader: result[3] || '',        // uploader
-                timestamp: safeNum(result[4]) // timestamp
+                id: safeNum(result[0]),      // id
+                fileName: result[1] || '',    // fileName
+                uploader: result[2] || '',    // uploader
+                timestamp: safeNum(result[3]), // timestamp
+                fileType: result[4] || '',    // fileType
+                fileSize: safeNum(result[5])  // fileSize
             };
         } catch (error) {
             console.error('Error retrieving file metadata:', error);

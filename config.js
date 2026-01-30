@@ -65,12 +65,13 @@ const CONFIG = {
             "inputs": [{ "internalType": "uint256", "name": "_fileId", "type": "uint256" }],
             "name": "getFile",
             "outputs": [
+                { "internalType": "uint256", "name": "id", "type": "uint256" },
                 { "internalType": "string", "name": "fileName", "type": "string" },
                 { "internalType": "string", "name": "fileContent", "type": "string" },
-                { "internalType": "string", "name": "fileType", "type": "string" },
-                { "internalType": "uint256", "name": "fileSize", "type": "uint256" },
                 { "internalType": "address", "name": "uploader", "type": "address" },
-                { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+                { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+                { "internalType": "string", "name": "fileType", "type": "string" },
+                { "internalType": "uint256", "name": "fileSize", "type": "uint256" }
             ],
             "stateMutability": "nonpayable",
             "type": "function"
@@ -79,11 +80,12 @@ const CONFIG = {
             "inputs": [{ "internalType": "uint256", "name": "_fileId", "type": "uint256" }],
             "name": "getFileMetadata",
             "outputs": [
+                { "internalType": "uint256", "name": "id", "type": "uint256" },
                 { "internalType": "string", "name": "fileName", "type": "string" },
-                { "internalType": "string", "name": "fileType", "type": "string" },
-                { "internalType": "uint256", "name": "fileSize", "type": "uint256" },
                 { "internalType": "address", "name": "uploader", "type": "address" },
-                { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+                { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+                { "internalType": "string", "name": "fileType", "type": "string" },
+                { "internalType": "uint256", "name": "fileSize", "type": "uint256" }
             ],
             "stateMutability": "view",
             "type": "function"
