@@ -23,7 +23,6 @@ class IPFSHandler {
      * @returns {Promise<string>} - The IPFS hash (CID)
      */
     async uploadFile(file) {
-
         try {
             const formData = new FormData();
             formData.append('file', file);
@@ -47,21 +46,40 @@ class IPFSHandler {
 
             showNotification('Uploading file to IPFS...', 'info');
 
-            const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${this.pinataJWT}`
-                },
-                body: formData
-            });
+            // Determine if we're in production (Netlify) or local dev
+            const isProduction = window.location.hostname !== 'localhost' &&
+                window.location.hostname !== '127.0.0.1';
 
-            console.log('Pinata response status:', response.status);
+            let response;
+
+            if (isProduction) {
+                // Use Netlify Function in production
+                response = await fetch('/.netlify/functions/pinata-upload', {
+                    method: 'POST',
+                    body: formData
+                });
+            } else {
+                // Use direct Pinata API in local development
+                if (!this.pinataJWT || this.pinataJWT.length === 0) {
+                    throw new Error('IPFS storage requires Pinata API credentials. Please configure in config.js');
+                }
+
+                response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${this.pinataJWT}`
+                    },
+                    body: formData
+                });
+            }
+
+            console.log('IPFS upload response status:', response.status);
 
             if (!response.ok) {
                 let errorMessage = 'Failed to upload to IPFS';
                 try {
                     const errorData = await response.text();
-                    console.error('Pinata error response:', errorData);
+                    console.error('IPFS upload error response:', errorData);
 
                     // Try to parse as JSON
                     try {
@@ -71,14 +89,14 @@ class IPFSHandler {
                         errorMessage = errorData || `HTTP ${response.status}: ${response.statusText}`;
                     }
                 } catch (e) {
-                    console.error('Error parsing Pinata response:', e);
+                    console.error('Error parsing response:', e);
                     errorMessage = `HTTP ${response.status}: ${response.statusText}`;
                 }
                 throw new Error(errorMessage);
             }
 
             const result = await response.json();
-            console.log('Pinata upload success:', result);
+            console.log('IPFS upload success:', result);
             const ipfsHash = result.IpfsHash;
 
             showNotification(`File uploaded to IPFS! Hash: ${ipfsHash.substring(0, 12)}...`, 'success');
