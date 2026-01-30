@@ -40,9 +40,41 @@ class ContractInteraction {
             // Wait for confirmation
             const receipt = await tx.wait();
 
-            // Get file ID from event
-            const event = receipt.events.find(e => e.event === 'FileUploaded');
-            const fileId = event.args.fileId.toNumber();
+            // Parse events from logs - more reliable method
+            let fileId;
+            try {
+                // Try to parse from events
+                const uploadedEvent = receipt.events?.find(e => e.event === 'FileUploaded');
+                if (uploadedEvent && uploadedEvent.args) {
+                    fileId = uploadedEvent.args.fileId.toNumber();
+                } else {
+                    // Fallback: parse from logs manually
+                    const iface = contract.interface;
+                    for (const log of receipt.logs) {
+                        try {
+                            const parsed = iface.parseLog(log);
+                            if (parsed.name === 'FileUploaded') {
+                                fileId = parsed.args.fileId.toNumber();
+                                break;
+                            }
+                        } catch (e) {
+                            // Skip logs that don't match
+                            continue;
+                        }
+                    }
+                }
+
+                // If still no fileId, get the file count
+                if (!fileId) {
+                    const count = await contract.getFileCount();
+                    fileId = count.toNumber();
+                }
+            } catch (parseError) {
+                console.error('Error parsing file ID from event:', parseError);
+                // Fallback to getting file count
+                const count = await contract.getFileCount();
+                fileId = count.toNumber();
+            }
 
             showNotification(`File uploaded successfully! File ID: ${fileId}`, 'success');
 
@@ -69,10 +101,8 @@ class ContractInteraction {
         try {
             const contract = this.web3Handler.getContract();
 
-            const tx = await contract.getFile(fileId);
-            const receipt = await tx.wait();
-
-            // The function returns the file data
+            // getFile is a view function, don't need to wait for transaction
+            // Just call files() directly to get the file data
             const file = await contract.files(fileId);
 
             return {
