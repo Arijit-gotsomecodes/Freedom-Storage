@@ -482,11 +482,16 @@ async function previewFile(fileId) {
         }
 
         const modal = document.getElementById('previewModal');
+        const imgContainer = document.querySelector('.preview-image-container');
         const img = document.getElementById('previewImage');
         const fileName = document.getElementById('previewFileName');
         const info = document.getElementById('previewInfo');
 
         fileName.textContent = file.fileName;
+
+        // Reset image state and show loading spinner
+        img.classList.remove('loaded');
+        imgContainer.classList.add('loading');
 
         // Check if it's IPFS or base64
         if (ipfsHandler.isIPFSHash(file.fileContent)) {
@@ -498,11 +503,14 @@ async function previewFile(fileId) {
             // Add error handler for image loading
             img.onerror = () => {
                 console.error('Failed to load image from:', url);
-                showNotification('Failed to load image from IPFS. URL: ' + url, 'error');
+                imgContainer.classList.remove('loading');
+                showNotification('Failed to load image from IPFS', 'error');
             };
 
             img.onload = () => {
                 console.log('Image loaded successfully from IPFS');
+                imgContainer.classList.remove('loading');
+                img.classList.add('loaded');
                 showNotification('Preview loaded!', 'success');
             };
 
@@ -510,6 +518,17 @@ async function previewFile(fileId) {
         } else {
             // Load from base64
             console.log('Loading base64 image');
+
+            img.onload = () => {
+                imgContainer.classList.remove('loading');
+                img.classList.add('loaded');
+            };
+
+            img.onerror = () => {
+                imgContainer.classList.remove('loading');
+                showNotification('Failed to load image', 'error');
+            };
+
             img.src = `data:${file.fileType};base64,${file.fileContent}`;
         }
 
