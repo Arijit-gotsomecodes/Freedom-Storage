@@ -23,3 +23,7 @@ Thumbs.db
 *.swo
 *~
 abi.txt
+DEPLOYMENT_FIX.md
+DEPLOYMENT_GUIDE.md
+NETLIFY_DEPLOYMENT.md
+PINATA_SETUP.md
